@@ -50,7 +50,7 @@
         $(document).ready(function() {
             $('#generate_sum').click(function(){
                 let text = $('#source-text').val();
-                $.post("/api/produce_summary", {
+                $.post("/api/produce_summary/", {
                     "source": text,
                 }, render_summary)
             });
