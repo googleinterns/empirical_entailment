@@ -14,7 +14,7 @@ def api_produce_summary(request):
     if request.method != 'POST':
         return HttpResponse(status=405)
 
-    source = request.post.get('source')
+    source = request.POST.get('source')
     hypo = produce_summary(source_text=source)
 
     return JsonResponse({
