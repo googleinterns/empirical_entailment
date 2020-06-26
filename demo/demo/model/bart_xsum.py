@@ -4,7 +4,6 @@ from fairseq.models.bart import BARTModel
 bart = BARTModel.from_pretrained(
     'bart_xsum_model/',
     checkpoint_file='model.pt',
-    data_name_or_path='cnn_dm-bin'
 )
 
 bart.cuda()
