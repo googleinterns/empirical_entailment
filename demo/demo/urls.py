@@ -21,5 +21,6 @@ from demo import view
 urlpatterns = [
     path('admin/', admin.site.urls),
 
-    path('', view.render_home_page)
+    path('', view.render_home_page),
+    path('api/produce_summary/', view.api_produce_summary),
 ]

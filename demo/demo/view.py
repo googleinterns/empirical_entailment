@@ -5,10 +5,16 @@ from demo.model.bart_xsum import produce_summary
 
 def render_home_page(request):
     context = {}
-    api_produce_summary("The W.H.O. said it needs $27.9 billion to speed production of a vaccine. Infections among Latinos in the U.S. have far outpaced those among the rest of the population during the recent surge in cases.")
     return render(request, 'index.html', context)
 
 
-def api_produce_summary(source_txt):
-    hypo = produce_summary(source_text=source_txt)
-    print(hypo)
+def api_produce_summary(request):
+    if request.method != 'POST':
+        return HttpResponse(status=405)
+
+    source = request.post.get('source')
+    hypo = produce_summary(source_text=source)
+
+    return JsonResponse({
+        'summary': hypo
+    })
