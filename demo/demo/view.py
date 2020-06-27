@@ -5,7 +5,11 @@ from django.views.decorators.csrf import csrf_exempt
 
 
 def render_home_page(request):
-    context = {}
+    
+    context = {
+        "models"
+    }
+
     return render(request, 'index.html', context)
 
 

@@ -1,6 +1,8 @@
 import torch
 from fairseq.models.bart import BARTModel
 
+_MODEL_NAME = 'bart.large.xsum'
+
 bart = BARTModel.from_pretrained(
     '/scratch/sihaoc/models/bart.large.xsum/',
     checkpoint_file='model.pt',

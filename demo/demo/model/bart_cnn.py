@@ -1,8 +1,9 @@
 import torch
 from fairseq.models.bart import BARTModel
 
-bart = torch.hub.load('pytorch/fairseq', 'bart.large.cnn')
+_MODEL_NAME = 'bart.large.cnn'
 
+bart = torch.hub.load('pytorch/fairseq', 'bart.large.cnn')
 
 bart.cuda()
 bart.eval()
