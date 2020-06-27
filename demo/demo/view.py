@@ -3,11 +3,16 @@ from django.http import JsonResponse, HttpResponse
 from demo.model import bart_xsum, bart_cnn
 from django.views.decorators.csrf import csrf_exempt
 
+# Update this to show which models are available in the demo
+AVAILABLE_MODELS = [bart_xsum, bart_cnn]
+
+AVAILABLE_MODELS_MAPPING = {m.MODEL_NAME: m for m in AVAILABLE_MODELS}
+AVAILABLE_MODELS_NAME = [m.MODEL_NAME for m in AVAILABLE_MODELS]
+
 
 def render_home_page(request):
-    
     context = {
-        "models"
+        "models": AVAILABLE_MODELS_NAME
     }
 
     return render(request, 'index.html', context)

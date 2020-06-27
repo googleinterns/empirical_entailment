@@ -1,7 +1,7 @@
 import torch
 from fairseq.models.bart import BARTModel
 
-_MODEL_NAME = 'bart.large.cnn'
+MODEL_NAME = 'bart.large.cnn'
 
 bart = torch.hub.load('pytorch/fairseq', 'bart.large.cnn')
 

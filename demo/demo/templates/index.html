@@ -14,14 +14,40 @@
 </head>
 <body>
 
-    <div class="jumbotron jumbotron-fluid">
-        <div class="container">
-            <div class="row">
-                <div class="col-sm">
-                    <h1 class="display-4"><a href="/">Summarization Demo</a></h1>
-                    <p class="lead">Model: BART trained on XSum</p>
+<div class="jumbotron jumbotron-fluid">
+    <div class="container">
+        <div class="row">
+            <div class="col-sm">
+                <h1 class="display-4"><a href="/">Summarization Demo</a></h1>
+                <div class="dropdown">
+                    <button class="btn btn-secondary dropdown-toggle" type="button" id="dropdownMenuButton" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                        Select Model
+                    </button>
+                    <ul class="nav nav-tabs" id="model_selector" role="tablist">
+                        {% for model_name in models %}
+                            {% if forloop.counter0 == 0 %}
+                                <li class="nav-item">
+                                    <a class="nav-link active" id="{{ model_name }}" data-toggle="tab" href="desc_{{ model_name }}" role="tab" aria-controls="home" aria-selected="true">{{ model_name }}</a>
+                                </li>
+                            {% else %}
+                                <li class="nav-item">
+                                    <a class="nav-link" id="{{ model_name }}" data-toggle="tab" href="desc_{{ model_name }}" role="tab" aria-controls="home" aria-selected="true">{{ model_name }}</a>
+                                </li>
+                            {% endif %}
+                        {% endfor %}
+                    </ul>
+                    <div class="tab-content" id="myTabContent">
+                        {% for model_name in models %}
+                            {% if forloop.counter0 == 0 %}
+                                <div class="tab-pane fade show active" id="desc_{{ model_name }}" role="tabpanel" aria-labelledby="home-tab">...</div>
+                            {% else %}
+                                <div class="tab-pane fade" id="desc_{{ model_name }}" role="tabpanel" aria-labelledby="profile-tab">...</div>
+                            {% endif %}
+                        {% endfor %}
+                    </div>
                 </div>
             </div>
+        </div>
         </div>
     </div>
 
@@ -50,6 +76,7 @@
         $(document).ready(function() {
             $('#generate_sum').click(function(){
                 let text = $('#source-text').val();
+                let model_type = $('#model_selector').val();
                 $.post("/api/produce_summary/", {
                     "source": text,
                 }, render_summary)
