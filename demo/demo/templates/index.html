@@ -29,7 +29,7 @@
         {% for model_name in models %}
             {% if forloop.counter0 == 0 %}
                 <li class="nav-item active">
-                    <a class="nav-link active" id="{{ model_name }}" data-toggle="tab" href="desc_{{ model_name }}" role="tab" aria-controls="home" aria-selected="true">{{ model_name }}</a>
+                    <a class="nav-link" id="{{ model_name }}" data-toggle="tab" href="desc_{{ model_name }}" role="tab" aria-controls="home" aria-selected="true">{{ model_name }}</a>
                 </li>
             {% else %}
                 <li class="nav-item">
@@ -70,7 +70,7 @@
     $(document).ready(function() {
         $('#generate_sum').click(function(){
             let text = $('#source-text').val();
-            let model_type = $('.nav-link.active').attr('id');
+            let model_type = $('.nav-item.active>a').attr('id');
 
             console.log(model_type);
             $.post("/api/produce_summary/", {
