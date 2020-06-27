@@ -1,8 +1,10 @@
 import torch
 from fairseq.models.bart import BARTModel
 
-bart = torch.hub.load('pytorch/fairseq', 'bart.large.xsum')
-
+bart = BARTModel.from_pretrained(
+    '../../model/bart.large.xsum/',
+    checkpoint_file='model.pt',
+)
 
 bart.cuda()
 bart.eval()
