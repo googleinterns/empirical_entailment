@@ -24,7 +24,11 @@ def api_produce_summary(request):
         return HttpResponse(status=405)
 
     source = request.POST.get('source')
-    hypo = bart_cnn.produce_summary(source_text=source)
+    model_type = request.POST.get('model_type')
+
+    _model = AVAILABLE_MODELS_MAPPING[model_type]
+
+    hypo = _model.produce_summary(source_text=source)
 
     return JsonResponse({
         'summary': hypo

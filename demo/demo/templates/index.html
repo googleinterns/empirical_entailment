@@ -70,9 +70,12 @@
     $(document).ready(function() {
         $('#generate_sum').click(function(){
             let text = $('#source-text').val();
-            let model_type = $('#model_selector').val();
+            let model_type = $('.nav-link.active').attr('id');
+
+            console.log(model_type);
             $.post("/api/produce_summary/", {
                 "source": text,
+                "model_type": model_type,
             }, render_summary)
         });
 
