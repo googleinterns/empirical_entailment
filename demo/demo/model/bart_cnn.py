@@ -1,7 +1,7 @@
 import torch
 from fairseq.models.bart import BARTModel
 
-bart = torch.hub.load('pytorch/fairseq', 'bart.large.xsum')
+bart = torch.hub.load('pytorch/fairseq', 'bart.large.cnn')
 
 
 bart.cuda()
@@ -9,10 +9,10 @@ bart.eval()
 bart.half()
 
 _config = {
-    "beam": 6,
-    "lenpen": 1.0,
-    "max_len_b": 60,
-    "min_len": 10,
+    "beam": 4,
+    "lenpen": 2.0,
+    "max_len_b": 140,
+    "min_len": 55,
     "no_repeat_ngram_size": 3
 }
 

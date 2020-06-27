@@ -1,6 +1,6 @@
 from django.shortcuts import render
 from django.http import JsonResponse, HttpResponse
-from demo.model.bart_xsum import produce_summary
+from demo.model import bart_xsum, bart_cnn
 from django.views.decorators.csrf import csrf_exempt
 
 
@@ -15,7 +15,7 @@ def api_produce_summary(request):
         return HttpResponse(status=405)
 
     source = request.POST.get('source')
-    hypo = produce_summary(source_text=source)
+    hypo = bart_cnn.produce_summary(source_text=source)
 
     return JsonResponse({
         'summary': hypo
