@@ -12,12 +12,16 @@ import numpy as np
 import pytorch_lightning as pl
 import torch
 from torch.utils.data import DataLoader
+from apex import amp
 
 from lightning_base import BaseTransformer, add_generic_args, generic_train
 from transformers import MBartTokenizer, get_linear_schedule_with_warmup, \
     AutoTokenizer, AutoModelForSequenceClassification, \
     glue_convert_examples_to_features, InputExample
 
+
+import logging
+logging.basicConfig(level=logging.ERROR)
 
 try:
     from .utils import (
@@ -106,6 +110,7 @@ class SummarizationModule(BaseTransformer):
         # Entailment model
         self.entailment_tokenizer = AutoTokenizer.from_pretrained('textattack/roberta-base-MNLI')
         self.entailment_model = AutoModelForSequenceClassification.from_pretrained('textattack/roberta-base-MNLI')
+        self.entailment_model = self.entailment_model.to('cuda')
 
     def freeze_embeds(self):
         """Freeze token embeddings and positional embeddings for bart, just token embeddings for t5."""
@@ -186,10 +191,15 @@ class SummarizationModule(BaseTransformer):
         entailment_input = [InputExample(text_a=target[idx], text_b=pred, guid="", label="entailment") for idx, pred in enumerate(preds)]
         entailment_features = glue_convert_examples_to_features(entailment_input,
                                                                 tokenizer=self.entailment_tokenizer,
-                                                                label_list=['contradiction', 'neutral', 'entailment'])
+                                                                label_list=['contradiction', 'neutral', 'entailment'],
+                                                                output_mode="classification")
         all_input_ids = torch.tensor([f.input_ids for f in entailment_features], dtype=torch.long)
         all_attention_mask = torch.tensor([f.attention_mask for f in entailment_features], dtype=torch.long)
         all_labels = torch.tensor([f.label for f in entailment_features], dtype=torch.long)
+
+        all_input_ids = all_input_ids.to('cuda')
+        all_attention_mask = all_attention_mask.to('cuda')
+        all_labels = all_labels.to('cuda')
 
         with torch.no_grad():
             entailment_output = self.entailment_model(input_ids=all_input_ids,
