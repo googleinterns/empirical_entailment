@@ -1,10 +1,10 @@
 from django.shortcuts import render
 from django.http import JsonResponse, HttpResponse
-from demo.model import bart_xsum, bart_cnn
+from demo.model import bart_xsum, bart_cnn, bart_base, bart_base_entailment
 from django.views.decorators.csrf import csrf_exempt
 
 # Update this to show which models are available in the demo
-AVAILABLE_MODELS = [bart_xsum, bart_cnn]
+AVAILABLE_MODELS = [bart_xsum, bart_cnn, bart_base, bart_base_entailment]
 
 AVAILABLE_MODELS_MAPPING = {m.MODEL_NAME: m for m in AVAILABLE_MODELS}
 AVAILABLE_MODELS_NAME = [m.MODEL_NAME for m in AVAILABLE_MODELS]

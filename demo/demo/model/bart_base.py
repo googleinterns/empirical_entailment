@@ -1,9 +1,9 @@
 import torch
 from transformers import AutoModelForSeq2SeqLM, AutoTokenizer
 
-_MODEL_DIR = f'models/bart_base_entailment/'
+_MODEL_DIR = f'models/bart_base/'
 
-MODEL_NAME = 'bart.base.entailment'
+MODEL_NAME = 'bart.base'
 
 model = AutoModelForSeq2SeqLM.from_pretrained(_MODEL_DIR)
 tokenizer = AutoTokenizer.from_pretrained(_MODEL_DIR)
