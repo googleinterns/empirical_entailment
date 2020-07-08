@@ -12,7 +12,7 @@ model.eval()
 
 def produce_summary(source_text):
     input_ids = torch.tensor(tokenizer.encode(source_text, add_special_tokens=True)).unsqueeze(0)
-    generated = model.generate(input_ids, decoder_start_token_id=model.config.decoder.pad_token_id)
+    generated = model.generate(input_ids)
     gen_text = tokenizer.batch_decode(
         generated, skip_special_tokens=True, clean_up_tokenization_spaces=True
     )[0]
