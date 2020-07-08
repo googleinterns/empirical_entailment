@@ -12,7 +12,7 @@ model.eval()
 
 def produce_summary(source_text):
     input_ids = torch.tensor(tokenizer.encode(source_text, add_special_tokens=True)).unsqueeze(0)
-    input_ids = input_ids.to('gpu')
+    input_ids = input_ids.to('cuda')
     generated = model.generate(input_ids)
     gen_text = tokenizer.batch_decode(
         generated, skip_special_tokens=True, clean_up_tokenization_spaces=True
@@ -22,4 +22,4 @@ def produce_summary(source_text):
     return gen_text
 
 if __name__ == '__main__':
-    produce_summary("Brooks Brothers, the clothier that traces its roots to 1818, filed for bankruptcy. Harvard and M.I.T. sued the Trump administration over its plan to require foreign students to attend classes in person.")
+    print(produce_summary("Brooks Brothers, the clothier that traces its roots to 1818, filed for bankruptcy. Harvard and M.I.T. sued the Trump administration over its plan to require foreign students to attend classes in person."))
