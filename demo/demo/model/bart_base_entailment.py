@@ -12,6 +12,7 @@ model.eval()
 
 def produce_summary(source_text):
     input_ids = torch.tensor(tokenizer.encode(source_text, add_special_tokens=True)).unsqueeze(0)
+    input_ids = input_ids.to('gpu')
     generated = model.generate(input_ids)
     gen_text = tokenizer.batch_decode(
         generated, skip_special_tokens=True, clean_up_tokenization_spaces=True
