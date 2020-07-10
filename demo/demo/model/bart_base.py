@@ -11,6 +11,13 @@ tokenizer = AutoTokenizer.from_pretrained(_MODEL_DIR)
 model = model.cuda()
 model.eval()
 
+GENERATION_CONFIG = {
+    "num_beams": 6,
+    "no_repeat_ngram_size": 3,
+    "early_stopping": False,
+    "min_length": 10,
+    "max_length": 60,
+}
 
 def produce_summary(source_text):
     input_ids = torch.tensor(tokenizer.encode(source_text, add_special_tokens=True)).unsqueeze(0)
