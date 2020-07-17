@@ -1,10 +1,8 @@
-## Sequence to Sequence
+## Summarization with Entailment Objective
 
-This directory contains examples for finetuning and evaluating transformers on summarization and translation tasks.
-Summarization support is more mature than translation support.
-Please tag @sshleifer with any issues/unexpected behaviors, or send a PR!
-For `bertabs` instructions, see `bertabs/README.md`. 
+This directory contains code/scripts for experiments.    
 
+Large part of the code is adapted from [The seq2seq examples in huggingface transformer library](https://github.com/huggingface/transformers/tree/master/examples/seq2seq)
 
 ### Data
 

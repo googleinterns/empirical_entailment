@@ -143,10 +143,10 @@ class SummarizationModule(BaseTransformer):
         loss = outputs[0]
         return (loss,)
 
-    def training_step(self, batch, batch_idx) -> Dict:
+    def training_step(self, batch, batch_idx, alpha=0.1) -> Dict:
         loss_tensors = self._step(batch)
         entailment_loss = self._generative_entailment_step(batch)
-        total_loss = loss_tensors[0] + entailment_loss
+        total_loss = loss_tensors[0] * entailment_loss
         logs = {name: loss for name, loss in zip(self.loss_names, loss_tensors)}
         return {"loss": total_loss, "log": logs}
 

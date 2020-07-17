@@ -19,6 +19,7 @@ GENERATION_CONFIG = {
     "max_length": 60,
 }
 
+
 def produce_summary(source_text):
     input_ids = torch.tensor(tokenizer.encode(source_text, add_special_tokens=True)).unsqueeze(0)
     input_ids = input_ids.to('cuda')
@@ -29,6 +30,7 @@ def produce_summary(source_text):
 
     gen_text = gen_text.strip()
     return gen_text
+
 
 if __name__ == '__main__':
     print(produce_summary("Brooks Brothers, the clothier that traces its roots to 1818, filed for bankruptcy. Harvard and M.I.T. sued the Trump administration over its plan to require foreign students to attend classes in person."))
