@@ -13,7 +13,7 @@ $ pip install -r requirements.txt
 
 ### How to Run the experiments 
 #### 1. Entailment as an auxillary objective
-To reproduce the BART baseline results, run the following command
+To reproduce finetuned BART on `XSum`, run the following command
 ```bash
 ./finetune.sh \
     --data_dir $XSUM_DIR \
@@ -24,7 +24,7 @@ To reproduce the BART baseline results, run the following command
     --model_name_or_path facebook/bart-large
 ```
 
-To run BART with Entailment objective, run --
+To finetune pretrained BART on `XSum` with the entailment objective, run --
 ```bash
 $ ./finetune_entailment.sh <dir-to-xsum-dataset> <dir-to-saved-model>
 ```
