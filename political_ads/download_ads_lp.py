@@ -3,12 +3,18 @@ import time
 import json
 import os
 
+from typing import Any
+
 from bs4 import BeautifulSoup
 from selenium import webdriver
 
 
-
 def browser_driver_setup(args):
+    """
+    Set up the browser
+    :param args: Args for browser specific configs for selenium
+    :return:
+    """
     option = webdriver.ChromeOptions()
     option.add_argument(' — incognito')
     browser = webdriver.Chrome()
@@ -17,6 +23,13 @@ def browser_driver_setup(args):
 
 def get_ad_info_from_link(url: str,
                           browser: webdriver.Chrome):
+    """
+    With the link to ads page on Google Transparency Report (from the csv), get the assets, vis_url and description
+    for the ads
+    :param url:
+    :param browser:
+    :return:
+    """
     browser.get(url)
     time.sleep(1.5)
     el_ad_ctnr = browser.find_elements_by_class_name('ad-container')
@@ -26,8 +39,7 @@ def get_ad_info_from_link(url: str,
     soup_ad_ctnr = BeautifulSoup(el_ad_ctnr[0].get_attribute("innerHTML"), 'html.parser')
 
     _all_divs = soup_ad_ctnr.find_all("div")
-    # print(len(_all_divs))
-    # print(_all_divs)
+
     if len(_all_divs) != 4:
         print("Malformed Webpage: {}".format(url))
         return None
@@ -40,11 +52,26 @@ def get_ad_info_from_link(url: str,
     return assets, url, desc
 
 
-def get_lp_content_from_vis_url(vis_url):
+def get_lp_content_from_vis_url(vis_url: str) -> Any:
+    """
+    Using the vis_url to identify the LP + parse useful text segments from the LP.
+    TODO: Not included here, as the parser I implemented didn't work well
+    :param vis_url:
+    :return:
+    """
     pass
 
 
-def main(args):
+def main(args) -> None:
+    """
+    Parse all js-rendered Google Transparency ads page and get the assets, vis_url and description
+
+    :param args.creative_stats: Path to creative_stats.csv, downloaded from
+    https://storage.googleapis.com/transparencyreport/google-political-ads-transparency-bundle.zip
+
+    :param args.output_path: Path to an output json file with results
+    :return: None
+    """
     df = pd.read_csv(args.creative_stats)
     orig_len = len(df.index)
     print("Loaded stats for {} ads...".format(orig_len))

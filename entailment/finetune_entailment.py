@@ -19,6 +19,7 @@ from transformers import MBartTokenizer, get_linear_schedule_with_warmup, \
     AutoTokenizer, AutoModelForSequenceClassification, \
     glue_convert_examples_to_features, InputExample
 
+from torch import Tensor
 
 import logging
 logging.basicConfig(level=logging.ERROR)
@@ -174,7 +175,12 @@ class SummarizationModule(BaseTransformer):
     def calc_generative_metrics(self, preds, target) -> Dict:
         return calculate_rouge(preds, target)
 
-    def _generative_entailment_step(self, batch: dict) -> dict:
+    def _generative_entailment_step(self, batch: dict) -> Tensor:
+        """
+        Decode the output and compute the enatailment loss against reference, from the current training step
+        :param batch:
+        :return: A
+        """
         pad_token_id = self.tokenizer.pad_token_id
         source_ids, source_mask, y = SummarizationDataset.trim_seq2seq_batch(batch, pad_token_id)
         t0 = time.time()
