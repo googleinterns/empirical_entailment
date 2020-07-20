@@ -26,7 +26,13 @@ To reproduce finetuned BART on `XSum`, run the following command
 
 To finetune pretrained BART on `XSum` with the entailment objective, run --
 ```bash
-$ ./finetune_entailment.sh <dir-to-xsum-dataset> <dir-to-saved-model>
+$ ./finetune_entailment.sh \
+    --data_dir $XSUM_DIR \
+    --train_batch_size=1 \
+    --eval_batch_size=1 \
+    --output_dir=xsum_results \
+    --num_train_epochs 1 \
+    --model_name_or_path facebook/bart-large
 ```
 
 After training, the pretrained models will be saved in the specified `output_dir`, along with the `ROUGE` scores on 
@@ -36,13 +42,7 @@ Use a pretrained entailment model to evaluate what portion of the summaries prod
 (1) the source text, and (2) the referenec summary. 
 
 ```bash
-$ python evaluate_entailment_score.py \
-    --data_dir $XSUM_DIR \
-    --train_batch_size=1 \
-    --eval_batch_size=1 \
-    --output_dir=xsum_results \
-    --num_train_epochs 1 \
-    --model_name_or_path facebook/bart-large
+$ python evaluate_entailment_score.py <dir-to-xsum-dataset> <dir-to-saved-model>
 ```
 
 ## Original Readme from Huggingface/transformers below
