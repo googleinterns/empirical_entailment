@@ -1,9 +1,51 @@
 ## Summarization with Entailment Objective
 
-This directory contains code/scripts for experiments.    
+This directory contains code/scripts for summarization with entailment experiments.    
 
 Large part of the code is adapted from [The seq2seq examples in huggingface transformer library](https://github.com/huggingface/transformers/tree/master/examples/seq2seq)
+### Setup for the Entailment Experiments
+First, follow the instructions below to download the `XSum` dataset and set `XSUM_DIR` env variable to the path of the directory.  
 
+Using a fresh `python3` envrionment, install the required pacakges. 
+```
+$ pip install -r requirements.txt
+``` 
+
+### How to Run the experiments 
+#### 1. Entailment as an auxillary objective
+To reproduce the BART baseline results, run the following command
+```bash
+./finetune.sh \
+    --data_dir $XSUM_DIR \
+    --train_batch_size=1 \
+    --eval_batch_size=1 \
+    --output_dir=xsum_results \
+    --num_train_epochs 1 \
+    --model_name_or_path facebook/bart-large
+```
+
+To run BART with Entailment objective, run --
+```bash
+$ ./finetune_entailment.sh <dir-to-xsum-dataset> <dir-to-saved-model>
+```
+
+After training, the pretrained models will be saved in the specified `output_dir`, along with the `ROUGE` scores on 
+validation and test set. 
+
+Use a pretrained entailment model to evaluate what portion of the summaries prodcued by each model is entailed by 
+(1) the source text, and (2) the referenec summary. 
+
+```bash
+$ python evaluate_entailment_score.py \
+    --data_dir $XSUM_DIR \
+    --train_batch_size=1 \
+    --eval_batch_size=1 \
+    --output_dir=xsum_results \
+    --num_train_epochs 1 \
+    --model_name_or_path facebook/bart-large
+```
+
+## Original Readme from Huggingface/transformers below
 ### Data
 
 CNN/DailyMail data
@@ -25,7 +67,6 @@ wget https://s3.amazonaws.com/datasets.huggingface.co/summarization/xsum.tar.gz
 tar -xzvf xsum.tar.gz
 export XSUM_DIR=${PWD}/xsum
 ```
-
 
 WMT16 English-Romanian Translation Data:
 ```bash

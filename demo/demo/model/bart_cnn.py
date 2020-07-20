@@ -18,7 +18,12 @@ _config = {
 }
 
 
-def produce_summary(source_text):
+def produce_summary(source_text: str) -> str:
+    """
+    Generate a short summary from the source text
+    :param source_text:
+    :return: generated summary
+    """
     source_b = [source_text.rstrip()]
     hypothesis_b = bart.sample(source_b, **_config)
 

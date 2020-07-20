@@ -19,14 +19,13 @@ GENERATION_CONFIG = {
     "max_length": 60,
 }
 
-# _config = {
-#     "beam": 6,
-#     "lenpen": 1.0,
-#     "max_len_b": 60,
-#     "min_len": 10,
-#     "no_repeat_ngram_size": 3
-# }
-def produce_summary(source_text):
+
+def produce_summary(source_text: str) -> str:
+    """
+    Generate a short summary from the source text
+    :param source_text:
+    :return: generated summary
+    """
     input_ids = torch.tensor(tokenizer.encode(source_text, add_special_tokens=True)).unsqueeze(0)
     input_ids = input_ids.to('cuda')
     generated = model.generate(input_ids, **GENERATION_CONFIG)
