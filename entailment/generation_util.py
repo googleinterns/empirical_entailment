@@ -944,13 +944,28 @@ def top_k_top_p_filtering(
         logits[indices_to_remove] = filter_value
     return logits
 
-def vocabulary_constaint_filtering(logits: Tensor,
-    original_text_tok_ids: List[int],
-    top_k: int = 0,
-    top_p: float = 1.0,
-    filter_value: float = -float("Inf"),
+
+def vocabulary_constraint_filtering(
+    logits: Tensor,
+    tokens_to_keep: Optional[torch.LongTensor],
+    filter_value: float = -1e9,
     min_tokens_to_keep: int = 1,
 ) -> Tensor:
+    """
+    Only keep the list of tokens specified in "tokens_to_keep" list.
+    if len(tokens_to_keep) < min_tokens_to_keep, don't apply the filter
+
+    :param logits:
+    :param tokens_to_keep: A List of tokens to keep in generation
+    :param filter_value:
+    :param min_tokens_to_keep:
+    :return:
+    """
+    _mask = torch.ones_like(logits)
+    _mask[tokens_to_keep] = 0
+    masked_logits = logits + _mask * filter_value
+    return masked_logits
+
 
 class BeamHypotheses(object):
     def __init__(self, num_beams, max_length, length_penalty, early_stopping):
