@@ -5,7 +5,7 @@ from django.views.decorators.csrf import csrf_exempt
 import importlib
 
 # name of model classes from demo/model/
-AVAILABLE_MODELS = ["bart_base", "bart_base_entailment", "bart.base.vocab.input"]
+AVAILABLE_MODELS = ["bart_base", "bart_base_entailment", "bart_base_vocab_constraint"]
 AVAILABLE_MODEL_CLASSES = []
 
 for _model in AVAILABLE_MODELS:

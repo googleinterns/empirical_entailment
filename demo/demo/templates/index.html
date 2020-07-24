@@ -71,11 +71,14 @@
 
 <script type="application/javascript">
     $(document).ready(function() {
+        var _table = null;
         $('#generate_sum').click(function(){
             let text = $('#source-text').val();
             let model_type = $('.nav-item.active>a').attr('id');
 
-            console.log(model_type);
+            if (_table !== null) {
+                _table.destroy();
+            }
             $.post("/api/produce_summary/", {
                 "source": text,
                 "model_type": model_type,
@@ -84,7 +87,7 @@
 
         function render_summary(res) {
             console.log(res);
-            $("#summary_results").DataTable({
+            _table = $("#summary_results").DataTable({
                 data: res["summary"],
                 columns: [
                     { title: "Summary" },
