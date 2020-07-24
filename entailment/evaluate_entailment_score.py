@@ -3,6 +3,8 @@ import torch
 import numpy as np
 import tqdm
 
+from typing import Optional
+
 from transformers import AutoModelForSeq2SeqLM, AutoTokenizer, AutoModelForSequenceClassification
 from transformers import InputExample, glue_convert_examples_to_features
 from transformers import PreTrainedTokenizer, PreTrainedModel
@@ -11,7 +13,8 @@ from transformers import PreTrainedTokenizer, PreTrainedModel
 def produce_summary(model: PreTrainedModel,
                     tokenizer: PreTrainedTokenizer,
                     source_text: str,
-                    cuda: bool):
+                    cuda: bool,
+                    generation_configs: Optional[dict] = None) -> str:
     """
     Use a summarization model to generate output
     :param model: Pretrained Summarization model
@@ -25,7 +28,7 @@ def produce_summary(model: PreTrainedModel,
     if cuda:
         input_ids = input_ids.to('cuda')
 
-    generated = model.generate(input_ids)
+    generated = model.generate(input_ids, **generation_configs)
     gen_text = tokenizer.batch_decode(
         generated, skip_special_tokens=True, clean_up_tokenization_spaces=True
     )[0]
@@ -73,10 +76,21 @@ def get_entailment_label(model,
     return pred_label
 
 
+GENERATION_CONFIG = {
+    "num_beams": 6,
+    "no_repeat_ngram_size": 3,
+    "early_stopping": False,
+    "min_length": 10,
+    "max_length": 60,
+    "limit_vocab_to_input": False,
+    "do_sample": True,
+}
+
+
 def evaluate_entailment(data_dir: str,
                         model_dir: str,
                         cuda: bool = True,
-                        limit: int = 2000) -> None:
+                        limit: int = 150) -> None:
     """
     Use a pretrained entailment model to evaluate the output of a summarization model against
     (1) source text
@@ -116,7 +130,7 @@ def evaluate_entailment(data_dir: str,
     for idx in tqdm.trange(num_examples):
         sl = source_lines[idx]
         tl = target_lines[idx]
-        pred_summary = produce_summary(model, tokenizer, sl, cuda)
+        pred_summary = produce_summary(model, tokenizer, sl, cuda, generation_configs=GENERATION_CONFIG)
         entailment_source_label = get_entailment_label(entailment_model, entailment_tokenizer, sl, pred_summary, cuda)
         entailment_target_label = get_entailment_label(entailment_model, entailment_tokenizer, tl, pred_summary, cuda)
 
