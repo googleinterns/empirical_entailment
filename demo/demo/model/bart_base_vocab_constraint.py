@@ -1,5 +1,4 @@
 from .util import load_model_and_tokenizer_huggingface, produce_summary_huggingface
-from .entailment_model import calculate_entailment_score
 from typing import List, Tuple
 
 _MODEL_DIR = f'models/bart_base/'

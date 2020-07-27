@@ -20,7 +20,9 @@ from demo import view
 
 urlpatterns = [
     path('admin/', admin.site.urls),
-
     path('', view.render_home_page),
+
+    # APIs
     path('api/produce_summary/', view.api_produce_summary),
+    path('api/rouge/', view.api_get_rogue_score),
 ]
