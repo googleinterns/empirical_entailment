@@ -18,7 +18,7 @@ AVAILABLE_MODELS_NAME = [m.MODEL_NAME for m in AVAILABLE_MODEL_CLASSES]
 
 def render_home_page(request):
     """
-    Render the homepage for the demo
+    Renders the homepage for the demo.
     :param request:
     :return:
     """

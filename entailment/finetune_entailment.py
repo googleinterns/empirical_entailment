@@ -177,9 +177,9 @@ class SummarizationModule(BaseTransformer):
 
     def _generative_entailment_step(self, batch: dict) -> Tensor:
         """
-        Decode the output and compute the enatailment loss against reference, from the current training step
+        Decodes the output and compute the enatailment loss against reference, from the current training step.
         :param batch:
-        :return: A
+        :return:
         """
         pad_token_id = self.tokenizer.pad_token_id
         source_ids, source_mask, y = SummarizationDataset.trim_seq2seq_batch(batch, pad_token_id)

@@ -1,12 +1,9 @@
-import torch
-from transformers import AutoModelForSeq2SeqLM, AutoTokenizer
+from .util import load_model_and_tokenizer_huggingface, produce_summary_huggingface
 
 _MODEL_DIR = f'models/bart_base_entailment/'
-
 MODEL_NAME = 'bart.base.entailment'
 
-model = AutoModelForSeq2SeqLM.from_pretrained(_MODEL_DIR)
-tokenizer = AutoTokenizer.from_pretrained(_MODEL_DIR)
+model, tokenizer = load_model_and_tokenizer_huggingface(_MODEL_DIR)
 
 model = model.cuda()
 model.eval()
@@ -22,19 +19,11 @@ GENERATION_CONFIG = {
 
 def produce_summary(source_text: str) -> str:
     """
-    Generate a short summary from the source text
+    Generates a short summary from the source text, using BART base model with Entailment objective on XSUM dataset.
     :param source_text:
     :return: generated summary
     """
-    input_ids = torch.tensor(tokenizer.encode(source_text, add_special_tokens=True)).unsqueeze(0)
-    input_ids = input_ids.to('cuda')
-    generated = model.generate(input_ids, **GENERATION_CONFIG)
-    gen_text = tokenizer.batch_decode(
-        generated, skip_special_tokens=True, clean_up_tokenization_spaces=True
-    )[0]
-
-    gen_text = gen_text.strip()
-    return gen_text
-
-if __name__ == '__main__':
-    print(produce_summary("Brooks Brothers, the clothier that traces its roots to 1818, filed for bankruptcy. Harvard and M.I.T. sued the Trump administration over its plan to require foreign students to attend classes in person."))
+    return produce_summary_huggingface(source_text=source_text,
+                                       model=model,
+                                       tokenizer=tokenizer,
+                                       config=GENERATION_CONFIG)
