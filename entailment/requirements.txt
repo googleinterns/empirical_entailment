@@ -1,0 +1,9 @@
+scikit-learn
+seqeval
+psutil
+sacrebleu
+rouge-score
+pytorch-lightning==0.8.5
+elasticsearch
+pandas
+nlp
