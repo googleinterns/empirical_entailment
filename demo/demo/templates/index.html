@@ -123,8 +123,12 @@
         function render_summary(res) {
             console.log(res);
             results = res["summary"];
+            console.log(typeof(results[0]));
+            results.forEach(function(t){
+                t[1] = t[1].toFixed(4);
+            });
             _table = $("#summary_results").DataTable({
-                data: res["summary"],
+                data: results,
                 columns: [
                     { title: "Summary" },
                     { title: "Entailment Score" },
@@ -148,7 +152,7 @@
 
                 let current_score = res[key];
                 for (let i = 0; i < clone_results.length; i++) {
-                    clone_results[i].push(current_score[i]);
+                    clone_results[i].push(current_score[i].toFixed(4));
                 }
             });
 

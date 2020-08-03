@@ -87,7 +87,7 @@ GENERATION_CONFIG = {
     "early_stopping": False,
     "min_length": 10,
     "max_length": 60,
-    "limit_vocab_to_input": False,
+    "limit_vocab_to_input": True,
     "num_return_sequences": 10,
     "do_sample": True,
 }
@@ -96,7 +96,7 @@ GENERATION_CONFIG = {
 def evaluate_entailment(data_dir: str,
                         model_dir: str,
                         cuda: bool = True,
-                        limit: int = 10) -> None:
+                        limit: int = 100) -> None:
     """
     Use a pretrained entailment model to evaluate the output of a summarization model against
     (1) source text
@@ -136,6 +136,8 @@ def evaluate_entailment(data_dir: str,
     entailment_target_score_list = []
 
     rouge_score_list = []
+    best_rouge_f1 = []
+    always_first_f1 = []
 
     num_examples = min(len(source_lines), limit)
     for idx in tqdm.trange(num_examples):
@@ -143,27 +145,36 @@ def evaluate_entailment(data_dir: str,
         tl = target_lines[idx]
         pred_summary = produce_summary(model, tokenizer, sl, cuda, generation_configs=GENERATION_CONFIG)
         entailment_source_score = get_entailment_prob(entailment_model, entailment_tokenizer, sl, pred_summary, cuda)
-        entailment_target_score = get_entailment_prob(entailment_model, entailment_tokenizer, tl, pred_summary, cuda)
+        # entailment_target_score = get_entailment_prob(entailment_model, entailment_tokenizer, tl, pred_summary, cuda)
 
         rouge_s = np.array([scorer.score(tl, pred)['rougeL'].fmeasure for pred in pred_summary])
 
+        best_idx = np.argmax(entailment_source_score)
+        best_rouge_f1.append(rouge_s[best_idx])
+        always_first_f1.append(rouge_s[0])
+
         entailment_source_score_list.append(entailment_source_score)
-        entailment_target_score_list.append(entailment_target_score)
+        # entailment_target_score_list.append(entailment_target_score)
 
         rouge_score_list.append(rouge_s)
 
         total += 1
 
     entailment_source_score_list = np.concatenate(entailment_source_score_list)
-    entailment_target_score_list = np.concatenate(entailment_target_score_list)
+    # entailment_target_score_list = np.concatenate(entailment_target_score_list)
     rouge_score_list = np.concatenate(rouge_score_list)
 
     source_r = spearmanr(entailment_source_score_list, rouge_score_list)
-    target_r = spearmanr(entailment_target_score_list, rouge_score_list)
+    # target_r = spearmanr(entailment_target_score_list, rouge_score_list)
+
+    best_mean_f1 = sum(best_rouge_f1) / len(best_rouge_f1)
+    beam_mean_f1 = sum(always_first_f1) / len(always_first_f1)
 
     print("Total :\t{}".format(total))
     print("Spearman Corr between entailment (source) and rouge :\t{}".format(source_r))
-    print("Spearman Corr between entailment (target) and rouge :\t{}".format(target_r))
+    print("Average RougeL F1 by selecting output with the highest entailment score:\t{}".format(best_mean_f1))
+    print("Average RougeL F1 by selecting output with the highest beam (LM prob) score:\t{}".format(beam_mean_f1))
+    # print("Spearman Corr between entailment (target) and rouge :\t{}".format(target_r))
 
 
 if __name__ == '__main__':
