@@ -2,7 +2,6 @@ import spacy
 
 annotator = spacy.load("en_core_web_sm")
 
-
 def generate_subsentences(sentence: str):
     annotated_sent = annotator(sentence)
     merge_nps = annotator.create_pipe("merge_noun_chunks")
@@ -52,8 +51,3 @@ def generate_subsentences(sentence: str):
             generated_sub_sentences.append(" ".join(sent))
 
     return generated_sub_sentences
-
-
-if __name__ == '__main__':
-    test_str = "A 20-year-old Romanian man had a lucky escape after stowing away on a plane flying from Vienna to London."
-    print(generate_subsentences(test_str))

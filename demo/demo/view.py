@@ -7,7 +7,7 @@ import json
 import importlib
 
 # name of model classes from demo/model/
-AVAILABLE_MODELS = ["bart_base", "bart_base_entailment", "bart_base_vocab_constraint"]
+AVAILABLE_MODELS = ["bart_base", "bart_base_vocab_constraint", "bart_base_np_constrained_decoding"]
 AVAILABLE_MODEL_CLASSES = []
 
 for _model in AVAILABLE_MODELS:

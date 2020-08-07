@@ -1,8 +1,13 @@
-from .util import produce_summary_huggingface
+from .util import load_gpt2, produce_summary_huggingface
 from typing import List, Tuple
-from .bart_base import model, tokenizer
 
-MODEL_NAME = 'bart.base.vocab.input'
+_MODEL_DIR = 'gpt2'
+MODEL_NAME = 'gpt2'
+
+model, tokenizer = load_gpt2(_MODEL_DIR)
+
+model = model.cuda()
+model.eval()
 
 GENERATION_CONFIG = {
     "num_beams": 10,
@@ -18,8 +23,7 @@ GENERATION_CONFIG = {
 
 def produce_summary(source_text: str) -> List[Tuple[str, float]]:
     """
-    Generates a short summary from the source text, using BART base model and limits the output vocabulary
-    to tokens appeared in the source text.
+    Generates a short summary from the source text, using BART base model trained on XSUM dataset.
     :param source_text:
     :return: generated summary
     """
