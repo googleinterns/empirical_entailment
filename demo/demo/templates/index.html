@@ -1,0 +1,177 @@
+{% load static %}
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Summarization Demo</title>
+
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/flat-ui/2.3.0/css/vendor/bootstrap/css/bootstrap.min.css" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/flat-ui/2.3.0/css/flat-ui.min.css" />
+    <link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/1.10.21/css/jquery.dataTables.css">
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/flat-ui/2.3.0/js/vendor/respond.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/flat-ui/2.3.0/js/vendor/jquery.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/flat-ui/2.3.0/js/flat-ui.min.js"></script>
+    <script type="text/javascript" charset="utf8" src="https://cdn.datatables.net/1.10.21/js/jquery.dataTables.js"></script>
+</head>
+<body>
+
+<div class="jumbotron jumbotron-fluid">
+    <div class="container">
+        <div class="row">
+            <div class="col-sm">
+                <h1 class="display-4"><a href="/">Summarization Demo</a></h1>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="container">
+    <ul class="nav nav-tabs" id="model_selector" role="tablist">
+        {% for model_name in models %}
+            {% if forloop.counter0 == 0 %}
+                <li class="nav-item active">
+                    <a class="nav-link" id="{{ model_name }}" data-toggle="tab" href="desc_{{ model_name }}" role="tab" aria-controls="home" aria-selected="true">{{ model_name }}</a>
+                </li>
+            {% else %}
+                <li class="nav-item">
+                    <a class="nav-link" id="{{ model_name }}" data-toggle="tab" href="desc_{{ model_name }}" role="tab" aria-controls="home" aria-selected="true">{{ model_name }}</a>
+                </li>
+            {% endif %}
+        {% endfor %}
+    </ul>
+    <div class="tab-content" id="myTabContent">
+        {% for model_name in models %}
+            {% if forloop.counter0 == 0 %}
+                <div class="tab-pane fade show active" id="desc_{{ model_name }}" role="tabpanel" aria-labelledby="home-tab">...</div>
+            {% else %}
+                <div class="tab-pane fade" id="desc_{{ model_name }}" role="tabpanel" aria-labelledby="profile-tab">...</div>
+            {% endif %}
+        {% endfor %}
+    </div>
+    <div class="row">
+        <div class="col-12">
+            <textarea id="source-text" placeholder="Write an article here" style="width: 100%; height: 200px"></textarea>
+        </div>
+    </div>
+    <br>
+    <div class="row">
+        <div class="col-12">
+            <button id="generate_sum" type="submit" class="btn btn-primary" style="width: 100%">
+                Generate Summary!
+            </button>
+        </div>
+    </div>
+    <br>
+    <div class="row evaluate_rouge" style="display: none">
+        <div class="col-12">
+            <input id="reference_summary_input" style="width: 100%" placeholder="Paste Reference Summary Here">
+            <button id="btn_evaluate_rouge" type="submit" class="btn btn-info" style="width: 100%">
+                See Rouge Score
+            </button>
+        </div>
+    </div>
+
+    <br>
+    <div class="row">
+        <table id="summary_results" class="display" style="width: 100%"></table>
+    </div>
+</div>
+
+<script type="application/javascript">
+    $(document).ready(function() {
+        var _table = null;
+        var results = null;
+
+        $('#generate_sum').click(function(){
+            let text = $('#source-text').val();
+            let model_type = $('.nav-item.active>a').attr('id');
+            reset_table();
+
+            $(".evaluate_rouge").hide();
+            $("#generate_sum").prop("disabled", true);
+            $.post("/api/produce_summary/", {
+                "source": text,
+                "model_type": model_type,
+            }, render_summary)
+        });
+
+        $("#btn_evaluate_rouge").click(function() {
+            let reference = $('#reference_summary_input').val();
+            if (reference) {
+                reset_table();
+
+                let candidates = get_candidate_array();
+                console.log(candidates);
+                $.post('/api/rouge/', {
+                    "reference": reference,
+                    "candidates": JSON.stringify(candidates),
+                }, render_rouge)
+            }
+            else {
+                alert("Reference summary is empty. Please write something there!")
+            }
+        })
+
+        function get_candidate_array() {
+            if (!results)
+                return []
+            return results.map(r => r[0])
+        }
+
+        function render_summary(res) {
+            console.log(res);
+            results = res["summary"];
+            console.log(typeof(results[0]));
+            results.forEach(function(t){
+                t[1] = t[1].toFixed(4);
+            });
+            _table = $("#summary_results").DataTable({
+                data: results,
+                columns: [
+                    { title: "Summary" },
+                    { title: "Entailment Score" },
+                ]
+            })
+
+            $("#generate_sum").prop("disabled", false);
+            $(".evaluate_rouge").show();
+        }
+
+        function render_rouge(res) {
+            console.log(res);
+            let new_column_titles = [
+                    { title: "Summary" },
+                    { title: "Entailment Score" },
+                ]
+            let clone_results = JSON.parse(JSON.stringify(results));
+
+            Object.keys(res).forEach(function(key) {
+                new_column_titles.push({title: key});
+
+                let current_score = res[key];
+                for (let i = 0; i < clone_results.length; i++) {
+                    clone_results[i].push(current_score[i].toFixed(4));
+                }
+            });
+
+            _table = $("#summary_results").DataTable({
+                data: clone_results,
+                columns: new_column_titles,
+            });
+        }
+
+        function reset_table() {
+            if (_table !== null) {
+                _table.destroy();
+                $("#summary_results").empty();
+                _table = null;
+            }
+        }
+    });
+
+
+</script>
+</body>
+</html>

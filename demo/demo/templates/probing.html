@@ -1,0 +1,91 @@
+{% load static %}
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Summarization Demo</title>
+
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/flat-ui/2.3.0/css/vendor/bootstrap/css/bootstrap.min.css" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/flat-ui/2.3.0/css/flat-ui.min.css" />
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/flat-ui/2.3.0/js/vendor/respond.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/flat-ui/2.3.0/js/vendor/jquery.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/flat-ui/2.3.0/js/flat-ui.min.js"></script>
+</head>
+<body>
+
+<div class="jumbotron jumbotron-fluid">
+    <div class="container">
+        <div class="row">
+            <div class="col-sm">
+                <h1 class="display-4"><a href="/">Summarization Demo</a></h1>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="container">
+    <ul class="nav nav-tabs" id="model_selector" role="tablist">
+        {% for model_name in models %}
+            {% if forloop.counter0 == 0 %}
+                <li class="nav-item active">
+                    <a class="nav-link" id="{{ model_name }}" data-toggle="tab" href="desc_{{ model_name }}" role="tab" aria-controls="home" aria-selected="true">{{ model_name }}</a>
+                </li>
+            {% else %}
+                <li class="nav-item">
+                    <a class="nav-link" id="{{ model_name }}" data-toggle="tab" href="desc_{{ model_name }}" role="tab" aria-controls="home" aria-selected="true">{{ model_name }}</a>
+                </li>
+            {% endif %}
+        {% endfor %}
+    </ul>
+    <div class="tab-content" id="myTabContent">
+        {% for model_name in models %}
+            {% if forloop.counter0 == 0 %}
+                <div class="tab-pane fade show active" id="desc_{{ model_name }}" role="tabpanel" aria-labelledby="home-tab">...</div>
+            {% else %}
+                <div class="tab-pane fade" id="desc_{{ model_name }}" role="tabpanel" aria-labelledby="profile-tab">...</div>
+            {% endif %}
+        {% endfor %}
+    </div>
+    <div class="row">
+        <div class="col-12">
+            <textarea id="source-text" placeholder="Write an article here" style="width: 100%; height: 200px"></textarea>
+        </div>
+    </div>
+    <br>
+    <div class="row">
+        <div class="col-12">
+            <button id="generate_sum" type="submit" class="btn btn-primary" style="width: 100%">
+                Generate Summary!
+            </button>
+        </div>
+    </div>
+
+    <div class="row">
+        <p id="sum_result"></p>
+    </div>
+</div>
+
+<script type="application/javascript">
+    $(document).ready(function() {
+        $('#generate_sum').click(function(){
+            let text = $('#source-text').val();
+            let model_type = $('.nav-item.active>a').attr('id');
+
+            console.log(model_type);
+            $.post("/api/produce_summary/", {
+                "source": text,
+                "model_type": model_type,
+            }, render_summary)
+        });
+
+        function render_summary(res) {
+            console.log(res);
+            $("#sum_result").text(res["summary"]);
+        }
+    });
+
+
+</script>
+</body>
+</html>
