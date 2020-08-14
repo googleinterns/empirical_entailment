@@ -2,11 +2,12 @@ from transformers import AutoTokenizer, AutoModelForSequenceClassification
 from typing import List
 import numpy as np
 
-from .util import predict_mnli_label
+from .util import predict_rte_label
 
-# Label Set for the model: [C, N, E]
-entailment_tokenizer = AutoTokenizer.from_pretrained('textattack/roberta-base-MNLI')
-entailment_model = AutoModelForSequenceClassification.from_pretrained('textattack/roberta-base-MNLI')
+MODEL_DIR = f'models/modifier_entailment/'
+# Label Set for the model: [entailment, not_entailment]
+entailment_tokenizer = AutoTokenizer.from_pretrained(MODEL_DIR)
+entailment_model = AutoModelForSequenceClassification.from_pretrained(MODEL_DIR)
 
 entailment_model = entailment_model.cuda()
 entailment_model.eval()
@@ -21,4 +22,4 @@ def calculate_entailment_score(text1_batch: List[str],
     :param text2_batch: Batch of sentence 2
     :return:
     """
-    return predict_mnli_label(text1_batch, text2_batch, entailment_model, entailment_tokenizer)
+    return predict_rte_label(text1_batch, text2_batch, entailment_model, entailment_tokenizer)

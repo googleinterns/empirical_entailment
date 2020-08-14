@@ -10,6 +10,7 @@ GENERATION_CONFIG = {
     "early_stopping": False,
     "min_length": 10,
     "max_length": 30,
+    "temperature": 1000,
     "num_return_sequences": 3,
     "limit_vocab_to_input": False,
     "do_sample": False,
@@ -19,6 +20,7 @@ GENERATION_CONFIG = {
 def produce_summary(source_text: str) -> List[Tuple[str, float]]:
     """
     Generates a short summary from the source text, using BART base model trained on XSUM dataset.
+    The decoder will favor noun phrases appeared in the orignal text during the decoding process.
     :param source_text:
     :return: generated summary
     """

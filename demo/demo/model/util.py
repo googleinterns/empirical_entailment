@@ -1,7 +1,7 @@
 from transformers import PreTrainedModel, PreTrainedTokenizer, AutoModelForSeq2SeqLM, AutoTokenizer, GPT2LMHeadModel, GPT2Tokenizer
 from typing import Optional, Tuple, List
-from fairseq.models import BaseFairseqModel
-from .entailment_model import calculate_entailment_score
+from demo.criteria.entailment_model import calculate_entailment_score
+from demo.criteria import modifier_entailment_model
 import torch
 
 import sys
@@ -15,6 +15,10 @@ _spec.loader.exec_module(_decoder)
 np_constrained_spec = importlib.util.spec_from_file_location("np_decode", os.path.abspath(os.path.join('..', 'entailment', 'np_constrained_decode.py')))
 np_constrained_decoder = importlib.util.module_from_spec(np_constrained_spec)
 np_constrained_spec.loader.exec_module(np_constrained_decoder)
+
+perturb_spec = importlib.util.spec_from_file_location("perturbation_maker", os.path.abspath(os.path.join('..', 'entailment', 'modifier_perturbation.py')))
+perturbation_maker = importlib.util.module_from_spec(perturb_spec)
+perturb_spec.loader.exec_module(perturbation_maker)
 
 DEFAULT_CONFIG = {
     "num_beams": 6,
@@ -114,16 +118,18 @@ def produce_summary_np_constrained_decoding(source_text: str,
     all_summaries = []
 
     for np_toks in all_np_toks:
-        generated = np_constrained_decoder.np_constrained_decode(model=model,
-                                                                 input_ids=input_ids,
-                                                                 prepend_decoded_token_ids=np_toks,
-                                                                 **config)
+        generated = _decoder.decode(model=model,
+                                    input_ids=input_ids,
+                                    source_text=source_text,
+                                    prepend_decoded_token_ids=np_toks,
+                                    tokenizer=tokenizer,
+                                    **config)
 
         gen_text_batch = tokenizer.batch_decode(
             generated, skip_special_tokens=True, clean_up_tokenization_spaces=True
         )
 
-        all_summaries.append(gen_text_batch[0])
+        all_summaries += gen_text_batch
 
     return _evaluate_entailment_score(source_text=source_text,
                                       summary_candidates=all_summaries)
@@ -146,27 +152,43 @@ def load_gpt2(model_name_or_dir: str) -> Tuple[PreTrainedModel, PreTrainedTokeni
     return model, tokenizer
 
 
-def produce_summary_fairseq(source_text: str,
-                            model: BaseFairseqModel,
-                            config: dict) -> str:
-    """
-    Generates a summary with a pretrained fairseq model.
-    TODO: need to connect entailment model to this
-    :param source_text: Source text/paragraph to produce summary on
-    :param model: Pretrained fairseq model
-    :param config: Configuration for generation/decoding.
-    :return: Produced summary by the model
-    """
-    source_b = [source_text.rstrip()]
-    hypothesis_b = model.sample(source_b, **config)
+def produce_summary_with_perturbation(source_text: str,
+                                      model: PreTrainedModel,
+                                      tokenizer: PreTrainedTokenizer,
+                                      config: Optional[dict] = None) -> List[Tuple[str, float]]:
+    if not config:
+        config = DEFAULT_CONFIG
 
-    return hypothesis_b[0]
+    input_ids = torch.tensor(tokenizer.encode(source_text, add_special_tokens=True))
+    input_ids = input_ids.unsqueeze(0)
+    input_ids = input_ids.to('cuda')
+
+    generated = model.generate(input_ids, **config)
+    gen_text_batch = tokenizer.batch_decode(
+        generated, skip_special_tokens=True, clean_up_tokenization_spaces=True
+    )
+
+    best_beam_output = gen_text_batch[0]
+    perturbed_versions = perturbation_maker.generate_modifier_perturbations(source_text, best_beam_output)
+    print(perturbed_versions)
+    perturbed_versions.append(best_beam_output)
+
+    return _evaluate_modifier_entailment_score(source_text, perturbed_versions)
 
 
 def _evaluate_entailment_score(source_text: str,
                                summary_candidates: List[str]) -> List[Tuple[str, float]]:
     source_text_batch = [source_text] * len(summary_candidates)
     entailment_score = calculate_entailment_score(source_text_batch, summary_candidates)
+    entailment_score = entailment_score.tolist()
+    res = list(zip(summary_candidates, entailment_score))
+    return res
+
+
+def _evaluate_modifier_entailment_score(source_text: str,
+                                        summary_candidates: List[str]) -> List[Tuple[str, float]]:
+    source_text_batch = [source_text] * len(summary_candidates)
+    entailment_score = modifier_entailment_model.calculate_entailment_score(source_text_batch, summary_candidates)
     entailment_score = entailment_score.tolist()
     res = list(zip(summary_candidates, entailment_score))
     return res
