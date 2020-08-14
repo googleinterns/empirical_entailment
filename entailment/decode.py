@@ -119,7 +119,7 @@ def decode(model: PreTrainedModel,
 
         if prepend_decoded_token_ids:
             for i in range(1, cur_len):
-                input_ids[:, i] = prepend_decoded_token_ids[i]
+                input_ids[:, i] = prepend_decoded_token_ids[i-1]
 
         assert (
             batch_size == encoder_outputs[0].shape[0]
